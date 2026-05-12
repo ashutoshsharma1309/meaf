@@ -1,0 +1,181 @@
+{
+  "Potato_Early_Blight": {
+    "disease_en": "Potato Early Blight",
+    "disease_hi": "आलू की अगेती झुलसा",
+    "pathogen": "Alternaria solani (fungus)",
+    "description_en": "Small dark concentric rings on older leaves first; spreads upward causing leaf drop. Common in warm, humid weather (24-29 °C) after flowering.",
+    "description_hi": "पुरानी पत्तियों पर पहले छोटे गहरे गोलाकार छल्ले दिखते हैं; ऊपर की ओर फैलकर पत्ती गिरने लगती है। फूल आने के बाद गर्म, नम मौसम (24-29 °C) में आम है।",
+    "organic": [
+      {
+        "name_en": "Neem oil spray (Azadirachtin 0.03%)",
+        "name_hi": "नीम तेल का छिड़काव",
+        "dose": "5 ml per litre of water",
+        "frequency": "Every 7 days, 3 sprays",
+        "cost_per_acre_inr": 450,
+        "notes_en": "Safe before harvest; spray in cool morning/evening.",
+        "notes_hi": "कटाई से पहले सुरक्षित; ठंडी सुबह/शाम में छिड़काव करें।"
+      },
+      {
+        "name_en": "Trichoderma viride bio-fungicide",
+        "name_hi": "ट्राइकोडर्मा विरिडी जैव-फफूंदनाशी",
+        "dose": "5 g per litre as foliar spray",
+        "frequency": "Once at first symptom, repeat after 10 days",
+        "cost_per_acre_inr": 350,
+        "notes_en": "Avoid mixing with chemical fungicides.",
+        "notes_hi": "रासायनिक फफूंदनाशी के साथ न मिलाएं।"
+      }
+    ],
+    "chemical": [
+      {
+        "name_en": "Mancozeb 75% WP",
+        "name_hi": "मैंकोज़ेब 75% WP",
+        "dose": "2.5 g per litre of water (1 kg/acre)",
+        "frequency": "First spray at 5% symptoms, repeat 10-12 days",
+        "cost_per_acre_inr": 600,
+        "phi_days": 7,
+        "notes_en": "Wear mask & gloves. Do not spray within 7 days of harvest.",
+        "notes_hi": "मास्क और दस्ताने पहनें। कटाई से 7 दिन पहले छिड़काव न करें।"
+      },
+      {
+        "name_en": "Chlorothalonil 75% WP",
+        "name_hi": "क्लोरोथैलोनिल 75% WP",
+        "dose": "2 g per litre of water",
+        "frequency": "Repeat every 10 days, max 3 sprays",
+        "cost_per_acre_inr": 900,
+        "phi_days": 10,
+        "notes_en": "Highly effective; rotate with Mancozeb to avoid resistance.",
+        "notes_hi": "अत्यधिक प्रभावी; प्रतिरोध से बचने के लिए मैंकोज़ेब के साथ बारी-बारी से उपयोग करें।"
+      }
+    ],
+    "prevention_en": [
+      "Use certified disease-free seed tubers.",
+      "Crop rotation with non-solanaceous crops (cereals/legumes) for 2-3 years.",
+      "Avoid overhead irrigation late in the day; keep canopy dry.",
+      "Remove and destroy infected plant debris immediately.",
+      "Maintain proper plant spacing (60 × 20 cm) for airflow."
+    ],
+    "prevention_hi": [
+      "प्रमाणित रोग-मुक्त बीज कंद का उपयोग करें।",
+      "2-3 साल तक गैर-सोलनेसी फसलों (अनाज/दलहन) के साथ फसल चक्र अपनाएँ।",
+      "देर शाम ऊपरी सिंचाई से बचें; पत्तियाँ सूखी रखें।",
+      "संक्रमित पौधे के अवशेषों को तुरंत हटाकर नष्ट करें।",
+      "हवा के लिए उचित पौधा दूरी (60 × 20 सेमी) रखें।"
+    ],
+    "yield_loss_pct_if_untreated": 30,
+    "expected_yield_per_acre_quintal": 100,
+    "market_price_per_quintal_inr": 1200
+  },
+
+  "Potato_Healthy": {
+    "disease_en": "Healthy Potato",
+    "disease_hi": "स्वस्थ आलू",
+    "pathogen": "—",
+    "description_en": "No disease detected. The leaf shows uniform green colour, intact margins and no necrotic spots.",
+    "description_hi": "कोई रोग नहीं मिला। पत्ती में एक समान हरा रंग, अखंड किनारे और कोई धब्बे नहीं हैं।",
+    "organic": [],
+    "chemical": [],
+    "prevention_en": [
+      "Continue current crop-management practices.",
+      "Scout fields weekly during flowering and tuber-formation stages.",
+      "Maintain balanced NPK fertilisation (typically 120:60:80 kg/ha)."
+    ],
+    "prevention_hi": [
+      "वर्तमान फसल प्रबंधन जारी रखें।",
+      "फूल और कंद बनने के समय हर सप्ताह खेत का निरीक्षण करें।",
+      "संतुलित NPK उर्वरक (आमतौर पर 120:60:80 किग्रा/हेक्टेयर) दें।"
+    ],
+    "yield_loss_pct_if_untreated": 0,
+    "expected_yield_per_acre_quintal": 100,
+    "market_price_per_quintal_inr": 1200
+  },
+
+  "Tomato_Early_Blight": {
+    "disease_en": "Tomato Early Blight",
+    "disease_hi": "टमाटर की अगेती झुलसा",
+    "pathogen": "Alternaria solani / A. tomatophila (fungus)",
+    "description_en": "Concentric brown rings (target-shaped) on lower leaves, often with yellow halo; can also affect stems and fruit. Favoured by warm, wet weather and plant stress.",
+    "description_hi": "निचली पत्तियों पर गहरे भूरे गोलाकार छल्ले (निशाने जैसे) पीले घेरे के साथ; तनों और फलों को भी प्रभावित कर सकता है। गर्म, गीला मौसम और पौधे पर तनाव बढ़ावा देते हैं।",
+    "organic": [
+      {
+        "name_en": "Neem oil spray (Azadirachtin 0.03%)",
+        "name_hi": "नीम तेल का छिड़काव",
+        "dose": "5 ml per litre of water",
+        "frequency": "Every 7 days, 3 sprays",
+        "cost_per_acre_inr": 450,
+        "notes_en": "Spray in cool morning/evening to avoid leaf burn.",
+        "notes_hi": "पत्तियाँ झुलसने से बचाने के लिए ठंडी सुबह/शाम में छिड़काव करें।"
+      },
+      {
+        "name_en": "Cow-urine + neem-leaf extract",
+        "name_hi": "गौमूत्र + नीम पत्ती सत",
+        "dose": "1 L cow urine + 1 kg neem leaves boiled in 10 L water, dilute 1:5",
+        "frequency": "Weekly until symptoms reduce",
+        "cost_per_acre_inr": 200,
+        "notes_en": "Traditional preventive; reduces sporulation.",
+        "notes_hi": "पारंपरिक निवारक; बीजाणु बनना कम करता है।"
+      }
+    ],
+    "chemical": [
+      {
+        "name_en": "Mancozeb 75% WP",
+        "name_hi": "मैंकोज़ेब 75% WP",
+        "dose": "2.5 g per litre of water",
+        "frequency": "First spray at 5% symptoms, repeat every 10 days",
+        "cost_per_acre_inr": 600,
+        "phi_days": 5,
+        "notes_en": "Most widely recommended first-line fungicide.",
+        "notes_hi": "सबसे अधिक अनुशंसित प्रथम-पंक्ति फफूंदनाशी।"
+      },
+      {
+        "name_en": "Azoxystrobin 23% SC",
+        "name_hi": "एज़ोक्सीस्ट्रोबिन 23% SC",
+        "dose": "1 ml per litre of water",
+        "frequency": "Two sprays at 10-14 day interval",
+        "cost_per_acre_inr": 1100,
+        "phi_days": 3,
+        "notes_en": "Use after Mancozeb if disease persists; do not over-use.",
+        "notes_hi": "यदि रोग बना रहे तो मैंकोज़ेब के बाद उपयोग करें; अधिक उपयोग न करें।"
+      }
+    ],
+    "prevention_en": [
+      "Use resistant varieties (e.g. Pusa Rohini, Arka Rakshak).",
+      "Stake plants and prune lower leaves to improve airflow.",
+      "Drip irrigation > flood irrigation to keep foliage dry.",
+      "Mulch with straw to prevent soil splash.",
+      "Rotate with maize/onion every 2-3 seasons."
+    ],
+    "prevention_hi": [
+      "प्रतिरोधी किस्में अपनाएँ (जैसे पूसा रोहिणी, अर्का रक्षक)।",
+      "पौधों को सहारा दें और निचली पत्तियाँ काटें ताकि हवा बनी रहे।",
+      "टपक सिंचाई (ड्रिप) करें, फ्लड सिंचाई न करें।",
+      "मिट्टी के छींटे रोकने के लिए पुआल मल्च बिछाएँ।",
+      "हर 2-3 मौसम बाद मक्का/प्याज के साथ फसल चक्र अपनाएँ।"
+    ],
+    "yield_loss_pct_if_untreated": 35,
+    "expected_yield_per_acre_quintal": 200,
+    "market_price_per_quintal_inr": 1500
+  },
+
+  "Tomato_Healthy": {
+    "disease_en": "Healthy Tomato",
+    "disease_hi": "स्वस्थ टमाटर",
+    "pathogen": "—",
+    "description_en": "No disease detected. The leaf shows uniform green colour, intact margins and no spotting.",
+    "description_hi": "कोई रोग नहीं मिला। पत्ती एक समान हरी, अखंड किनारे वाली और बिना धब्बों के है।",
+    "organic": [],
+    "chemical": [],
+    "prevention_en": [
+      "Continue current management.",
+      "Scout 2x per week during flowering and fruiting.",
+      "Maintain balanced NPK (typically 100:50:50 kg/ha) and adequate Ca for fruit quality."
+    ],
+    "prevention_hi": [
+      "वर्तमान प्रबंधन जारी रखें।",
+      "फूल और फल आने के समय सप्ताह में 2 बार खेत देखें।",
+      "संतुलित NPK (आमतौर पर 100:50:50 किग्रा/हेक्टेयर) और फल की गुणवत्ता के लिए कैल्शियम दें।"
+    ],
+    "yield_loss_pct_if_untreated": 0,
+    "expected_yield_per_acre_quintal": 200,
+    "market_price_per_quintal_inr": 1500
+  }
+}
