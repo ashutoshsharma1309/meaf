@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700;9..144,800&display=swap");
 
 @tailwind base;
 @tailwind components;
@@ -12,56 +12,155 @@ body,
 
 body {
   margin: 0;
-  background-color: #f8fafc;
-  color: #0f172a;
-  font-family: "DM Sans", system-ui, sans-serif;
+  background-color: #fafaf7;
+  color: #0b1f17;
+  font-family: "Inter", system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: "ss01", "cv11";
 }
 
 @layer base {
   h1, h2, h3, h4 {
-    font-family: "Playfair Display", Georgia, serif;
-    color: #0f172a;
-    letter-spacing: -0.01em;
+    font-family: "Fraunces", "Playfair Display", Georgia, serif;
+    color: #0b1f17;
+    letter-spacing: -0.018em;
+    font-weight: 600;
   }
+  ::selection { background-color: #bbe5c7; color: #082515; }
 }
 
 @layer components {
+  /* Buttons ----------------------------------------------------- */
   .btn {
-    @apply inline-flex items-center justify-center gap-2 rounded-md px-4 py-2.5 text-sm font-medium transition focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50;
+    @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-surface disabled:cursor-not-allowed disabled:opacity-50;
   }
   .btn-primary {
-    @apply btn bg-primary text-white hover:bg-primary-800 focus:ring-primary;
+    @apply btn bg-leaf-700 text-white shadow-card hover:bg-leaf-800 hover:shadow-elevated active:translate-y-px focus:ring-leaf-500;
   }
   .btn-secondary {
-    @apply btn border border-border bg-white text-ink hover:bg-surface-2 focus:ring-primary;
+    @apply btn border border-border-strong bg-white text-ink hover:bg-surface-2 hover:border-leaf-300 focus:ring-leaf-500;
   }
   .btn-ghost {
-    @apply btn text-ink-muted hover:bg-surface-2 hover:text-ink;
+    @apply btn text-ink-muted hover:bg-leaf-50 hover:text-leaf-800;
   }
-  .btn-danger {
-    @apply btn bg-white text-danger border border-border hover:bg-red-50 hover:border-red-200 focus:ring-danger;
+  .btn-tonal {
+    @apply btn bg-leaf-50 text-leaf-800 hover:bg-leaf-100 focus:ring-leaf-500;
   }
+
+  /* Cards -------------------------------------------------------- */
+  .card {
+    @apply rounded-2xl border border-border bg-white shadow-card;
+  }
+  .card-hover {
+    @apply transition-all hover:shadow-elevated hover:-translate-y-0.5;
+  }
+  .card-soft {
+    @apply rounded-2xl border border-border bg-surface-2;
+  }
+
+  /* Inputs ------------------------------------------------------- */
   .input {
-    @apply w-full rounded-md border border-border bg-white px-3.5 py-2.5 text-sm text-ink placeholder-ink-muted/60 transition focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20;
+    @apply w-full rounded-lg border border-border-strong bg-white px-3.5 py-2.5 text-sm text-ink placeholder-ink-muted/60 transition focus:border-leaf-500 focus:outline-none focus:ring-2 focus:ring-leaf-200;
   }
   .label {
     @apply mb-1.5 block text-sm font-medium text-ink;
   }
-  .card {
-    @apply rounded-lg border border-border bg-white shadow-card;
-  }
-  .stat-card {
-    @apply card p-5;
-  }
+
+  /* Badges ------------------------------------------------------- */
   .badge {
-    @apply inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium;
+    @apply inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider;
   }
-  .table-th {
-    @apply px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-ink-muted;
+  .badge-leaf  { @apply badge bg-leaf-100 text-leaf-800; }
+  .badge-earth { @apply badge bg-earth-100 text-earth-800; }
+  .badge-sky   { @apply badge bg-sky-100 text-sky-800; }
+  .badge-harvest { @apply badge bg-harvest-100 text-harvest-800; }
+  .badge-danger { @apply badge bg-red-100 text-red-800; }
+
+  /* Sections ----------------------------------------------------- */
+  .section-eyebrow {
+    @apply mb-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-leaf-700;
   }
-  .table-td {
-    @apply px-4 py-3 text-sm text-ink;
+  .section-title {
+    @apply font-display text-2xl font-semibold text-ink sm:text-3xl;
+  }
+
+  /* Skeleton ----------------------------------------------------- */
+  .skeleton {
+    @apply animate-shimmer bg-gradient-to-r from-surface-3 via-surface-2 to-surface-3 bg-[length:400px_100%];
+  }
+
+  /* Tabs --------------------------------------------------------- */
+  .tab {
+    @apply relative flex-1 px-4 py-3 text-sm font-medium text-ink-muted transition hover:text-ink;
+  }
+  .tab-active {
+    @apply text-leaf-800;
+  }
+  .tab-active::after {
+    content: "";
+    @apply absolute bottom-0 left-1/2 h-0.5 w-12 -translate-x-1/2 rounded-full bg-leaf-600;
+  }
+
+  /* Page background pattern ------------------------------------- */
+  .bg-pattern {
+    background-image: radial-gradient(circle at 1px 1px, rgb(31 124 66 / 0.06) 1px, transparent 0);
+    background-size: 24px 24px;
+  }
+
+  /* Glassy / elevated panels ------------------------------------ */
+  .glass {
+    @apply rounded-2xl border border-white/60 bg-white/70 backdrop-blur-md shadow-elevated;
+  }
+  .ring-leaf {
+    box-shadow:
+      0 0 0 1px rgb(31 124 66 / 0.18),
+      0 18px 38px -18px rgb(31 124 66 / 0.35);
+  }
+  .ring-harvest {
+    box-shadow:
+      0 0 0 1px rgb(215 100 8 / 0.20),
+      0 18px 38px -18px rgb(215 100 8 / 0.35);
+  }
+
+  /* Animated dotted scan line on hero leaf ---------------------- */
+  .scan-overlay {
+    background: linear-gradient(180deg, transparent 0%, rgb(31 124 66 / 0.35) 50%, transparent 100%);
+    animation: scan 2.6s ease-in-out infinite;
+  }
+
+  /* Number badge for step lists --------------------------------- */
+  .step-num {
+    @apply grid h-9 w-9 flex-shrink-0 place-items-center rounded-full font-display text-base font-bold;
+    background: linear-gradient(135deg, #1f7c42, #174f2d);
+    color: #fff;
+    box-shadow: 0 6px 14px -6px rgb(31 124 66 / 0.55);
+  }
+
+  /* Soft gradient hero blob ------------------------------------- */
+  .hero-blob {
+    background: radial-gradient(60% 60% at 50% 40%, rgb(143 219 168 / 0.45), transparent 70%);
+  }
+
+  /* Pulsing live dot ------------------------------------------- */
+  .live-dot {
+    @apply inline-block h-1.5 w-1.5 rounded-full bg-leaf-500;
+    box-shadow: 0 0 0 0 rgb(50 154 85 / 0.6);
+    animation: pulseDot 1.8s ease-out infinite;
   }
 }
+
+@keyframes scan {
+  0%, 100% { transform: translateY(-100%); opacity: 0; }
+  50% { transform: translateY(100%); opacity: 1; }
+}
+@keyframes pulseDot {
+  0%   { box-shadow: 0 0 0 0 rgb(50 154 85 / 0.55); }
+  70%  { box-shadow: 0 0 0 10px rgb(50 154 85 / 0); }
+  100% { box-shadow: 0 0 0 0 rgb(50 154 85 / 0); }
+}
+@keyframes blobFloat {
+  0%, 100% { transform: translate3d(0,0,0); }
+  50%      { transform: translate3d(0,-12px,0); }
+}
+.animate-blob { animation: blobFloat 8s ease-in-out infinite; }

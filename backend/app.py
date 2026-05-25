@@ -24,6 +24,7 @@ import numpy as np
 from fastapi import FastAPI, File, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from PIL import Image
+from skimage.color import rgb2hsv
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
@@ -54,8 +55,100 @@ print(f"  loaded — classes: {CLASSES}")
 with (DATA / "treatments.json").open() as f:
     TREATMENTS = json.load(f)
 
+# ---------- OOD detector ----------
+OOD_PATH = MODELS / "outlier_stats.npz"
+OOD = np.load(OOD_PATH) if OOD_PATH.exists() else None
+if OOD is None:
+    print("[warn] outlier_stats.npz not found — OOD rejection disabled")
+else:
+    print(f"  OOD threshold: {float(OOD['threshold']):.2f}")
+
 
 # ---------- helpers ----------
+def leaf_likeness(rgb: np.ndarray) -> dict:
+    """Fast HSV-based check: does this image actually look like a leaf?
+
+    Rejects:
+      - mostly-grey / low-saturation images (screenshots, scans)
+      - images with too few green/yellow leaf-coloured pixels
+      - solid-colour or near-uniform images
+      - random-noise / multicolour images whose hue distribution is uniform
+        (real leaves have a strong peak in green/brown hues)
+    """
+    if rgb.dtype != np.float32 and rgb.dtype != np.float64:
+        rgb = rgb.astype(np.float32) / 255.0
+    hsv = rgb2hsv(rgb)
+    h, s, v = hsv[..., 0], hsv[..., 1], hsv[..., 2]
+    # leaf-coloured pixel: greens/yellows (hue 60-160 deg -> 0.16-0.45)
+    leaf_mask = (h >= 0.16) & (h <= 0.45) & (s >= 0.12) & (v >= 0.10)
+    leaf_ratio = float(leaf_mask.mean())
+    # "diseased brown" pixels (early blight)
+    brown_mask = (h <= 0.10) & (s >= 0.18) & (v >= 0.10) & (v <= 0.60)
+    brown_ratio = float(brown_mask.mean())
+    plant_ratio = leaf_ratio + brown_ratio
+
+    sat_mean = float(s.mean())
+    var = float(rgb.var())
+
+    # Hue-distribution shape: real leaves have a dominant hue band;
+    # random / multicoloured images have a flat hue histogram.
+    valid = (s >= 0.10) & (v >= 0.10)
+    if valid.sum() > 100:
+        hue_hist, _ = np.histogram(h[valid], bins=12, range=(0.0, 1.0), density=True)
+        hue_hist = hue_hist / (hue_hist.sum() + 1e-9)
+        dominant_hue_share = float(hue_hist.max())
+        # entropy: low = concentrated (leaf), high = uniform (noise)
+        hue_entropy = float(-(hue_hist * np.log(hue_hist + 1e-9)).sum())
+    else:
+        dominant_hue_share = 0.0
+        hue_entropy = 0.0
+
+    # Decision
+    is_leaf = bool(
+        plant_ratio >= 0.18
+        and sat_mean >= 0.10
+        and var >= 0.003
+        and dominant_hue_share >= 0.22
+        and hue_entropy <= 2.20
+    )
+    reason = None
+    if not is_leaf:
+        if plant_ratio < 0.18:
+            reason = "too_little_foliage"
+        elif sat_mean < 0.10:
+            reason = "low_saturation"
+        elif var < 0.003:
+            reason = "uniform_image"
+        elif dominant_hue_share < 0.22 or hue_entropy > 2.20:
+            reason = "noisy_or_multicoloured"
+    return {
+        "is_leaf": is_leaf,
+        "plant_pixel_ratio": round(plant_ratio, 3),
+        "saturation_mean": round(sat_mean, 3),
+        "variance": round(var, 4),
+        "dominant_hue_share": round(dominant_hue_share, 3),
+        "hue_entropy": round(hue_entropy, 3),
+        "reason": reason,
+    }
+
+
+def feature_outlier_check(feat_scaled: np.ndarray) -> dict:
+    """Distance to nearest class centroid in the scaled feature space.
+    Returns the distance plus an `is_outlier` flag relative to training threshold."""
+    if OOD is None:
+        return {"distance": None, "threshold": None, "is_outlier": False}
+    centroids = OOD["centroids"]
+    dists = np.linalg.norm(centroids - feat_scaled, axis=1)
+    min_d = float(dists.min())
+    threshold = float(OOD["threshold"])
+    return {
+        "distance": round(min_d, 2),
+        "threshold": round(threshold, 2),
+        "is_outlier": min_d > threshold,
+        "z_score": round((min_d - float(OOD["mean_dist"])) / float(OOD["std_dist"]), 2),
+    }
+
+
 def severity_from_confidence(conf: float, is_healthy: bool) -> dict:
     """Return urgency band based on disease confidence."""
     if is_healthy:
@@ -116,22 +209,102 @@ async def predict(file: UploadFile = File(...)):
     except Exception as e:
         raise HTTPException(400, f"could not decode image: {e}")
 
-    # save to temp to reuse the same feature pipeline
+    t0 = time.time()
+    rgb = np.asarray(img, dtype=np.float32) / 255.0
+
+    # GATE 1 — leaf-likeness heuristic on raw pixels
+    leaf_check = leaf_likeness(rgb)
+
+    # save to temp so we can reuse the same feature pipeline
     tmp = ROOT / "_tmp_predict.jpg"
     img.save(tmp, "JPEG", quality=92)
-    t0 = time.time()
-    feat = SCALER.transform(extract(tmp).reshape(1, -1))
-    proba = MODEL.predict_proba(feat)[0]
-    pred = int(np.argmax(proba))
-    inference_ms = (time.time() - t0) * 1000
+    feat_raw = extract(tmp).reshape(1, -1)
+    feat = SCALER.transform(feat_raw)
     tmp.unlink(missing_ok=True)
 
-    label = CLASSES[pred]
+    # GATE 2 — feature-space outlier (distance to nearest class centroid)
+    ood = feature_outlier_check(feat[0])
+
+    proba = MODEL.predict_proba(feat)[0]
+    pred = int(np.argmax(proba))
     conf = float(proba[pred])
+    inference_ms = (time.time() - t0) * 1000
+
+    # combined rejection rule:
+    #   - non-leaf colour signature  OR
+    #   - feature outlier  OR
+    #   - low classifier confidence (< 60%) AND any of the above is borderline
+    is_leaf = leaf_check["is_leaf"] and not ood["is_outlier"]
+    if (not is_leaf) or conf < 0.55:
+        # build a friendly rejection payload
+        reason_code = "low_confidence"
+        if not leaf_check["is_leaf"]:
+            reason_code = leaf_check["reason"] or "not_a_leaf"
+        elif ood["is_outlier"]:
+            reason_code = "out_of_distribution"
+
+        reason_text = {
+            "too_little_foliage": (
+                "This doesn't look like a leaf photo — too little green/brown foliage.",
+                "यह पत्ती की फोटो नहीं लग रही — हरे/भूरे रंग की पत्ती बहुत कम है।",
+            ),
+            "low_saturation":    (
+                "Image looks grey or washed out — please retake in daylight.",
+                "फोटो धुँधली है — कृपया दिन की रोशनी में फिर से लें।",
+            ),
+            "uniform_image":     (
+                "The image looks like a solid colour — please upload a leaf.",
+                "फोटो एक रंग जैसी है — कृपया पत्ती की फोटो डालें।",
+            ),
+            "noisy_or_multicoloured": (
+                "This image is too noisy or multi-coloured to be a leaf photo.",
+                "यह फोटो बहुत धुँधली या कई रंगों की है — पत्ती की फोटो नहीं लग रही।",
+            ),
+            "out_of_distribution": (
+                "This may not be a potato or tomato leaf — our model only knows those two crops.",
+                "यह आलू या टमाटर की पत्ती नहीं लग रही — हमारा मॉडल केवल इन्हीं दो फसलों को पहचानता है।",
+            ),
+            "low_confidence":    (
+                "We're not sure — please take a clearer photo of one leaf, filling the frame.",
+                "हमें यकीन नहीं — कृपया एक पत्ती की साफ़ फोटो लें, पूरी पत्ती दिखाई दे।",
+            ),
+            "not_a_leaf":        (
+                "This doesn't look like a plant leaf.",
+                "यह पौधे की पत्ती नहीं लग रही।",
+            ),
+        }[reason_code]
+
+        return {
+            "is_leaf": False,
+            "reason": reason_code,
+            "message_en": reason_text[0],
+            "message_hi": reason_text[1],
+            "tips_en": [
+                "Hold the leaf flat against a plain background.",
+                "Take the photo in daylight, not under yellow indoor lights.",
+                "Fill at least 70% of the frame with a single leaf.",
+                "Supported crops: potato and tomato (healthy or early blight).",
+            ],
+            "tips_hi": [
+                "पत्ती को सपाट पकड़ें, सादे बैकग्राउंड पर रखें।",
+                "पीली रोशनी की बजाय दिन की रोशनी में फोटो लें।",
+                "एक पत्ती फ्रेम के कम-से-कम 70% भाग में हो।",
+                "समर्थित फसलें: आलू और टमाटर (स्वस्थ या अगेती झुलसा)।",
+            ],
+            "checks": {
+                "leaf_pixels": leaf_check,
+                "outlier": ood,
+                "top_class_confidence": round(conf, 3),
+            },
+            "inference_ms": round(inference_ms, 1),
+        }
+
+    label = CLASSES[pred]
     sev = severity_from_confidence(conf, is_healthy=label.endswith("_Healthy"))
     info = TREATMENTS.get(label, {})
 
     return {
+        "is_leaf": True,
         "class": label,
         "class_display_en": info.get("disease_en", label.replace("_", " ")),
         "class_display_hi": info.get("disease_hi", ""),
@@ -142,6 +315,10 @@ async def predict(file: UploadFile = File(...)):
         "probabilities": {c: float(p) for c, p in zip(CLASSES, proba)},
         "severity": sev,
         "inference_ms": round(inference_ms, 1),
+        "checks": {
+            "leaf_pixels": leaf_check,
+            "outlier": ood,
+        },
     }
 
 

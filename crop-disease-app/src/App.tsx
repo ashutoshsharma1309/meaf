@@ -1,5 +1,12 @@
 import { useState } from "react";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Landing from "./pages/Landing";
 import Farmer from "./pages/Farmer";
+import Advisory from "./pages/Advisory";
+import Mandi from "./pages/Mandi";
+import Chat from "./pages/Chat";
+import Library from "./pages/Library";
+import LibraryArticle from "./pages/LibraryArticle";
 import { LangContext, type Lang } from "./i18n";
 import { ToastProvider } from "./components/Toast";
 
@@ -16,7 +23,19 @@ export default function App() {
   return (
     <ToastProvider>
       <LangContext.Provider value={{ lang, setLang: handleSetLang }}>
-        <Farmer />
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<Landing />} />
+            <Route path="/diagnose" element={<Farmer />} />
+            <Route path="/app" element={<Advisory />} />
+            <Route path="/advisory" element={<Advisory />} />
+            <Route path="/mandi" element={<Mandi />} />
+            <Route path="/chat" element={<Chat />} />
+            <Route path="/library" element={<Library />} />
+            <Route path="/library/:slug" element={<LibraryArticle />} />
+            <Route path="*" element={<Landing />} />
+          </Routes>
+        </BrowserRouter>
       </LangContext.Provider>
     </ToastProvider>
   );

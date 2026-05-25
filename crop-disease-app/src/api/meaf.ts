@@ -19,6 +19,7 @@ export interface Severity {
 }
 
 export interface PredictResponse {
+  is_leaf: true;
   class: ClassName;
   class_display_en: string;
   class_display_hi: string;
@@ -29,7 +30,21 @@ export interface PredictResponse {
   probabilities: Record<string, number>;
   severity: Severity;
   inference_ms: number;
+  checks?: unknown;
 }
+
+export interface RejectResponse {
+  is_leaf: false;
+  reason: string;
+  message_en: string;
+  message_hi: string;
+  tips_en: string[];
+  tips_hi: string[];
+  checks: Record<string, unknown>;
+  inference_ms: number;
+}
+
+export type PredictResult = PredictResponse | RejectResponse;
 
 export interface TreatmentItem {
   name_en: string;
@@ -111,7 +126,7 @@ async function get<T>(path: string): Promise<T> {
   return r.json();
 }
 
-export async function predict(file: File): Promise<PredictResponse> {
+export async function predict(file: File): Promise<PredictResult> {
   const fd = new FormData();
   fd.append("file", file);
   const r = await fetch(`${API_BASE}/predict`, { method: "POST", body: fd });
